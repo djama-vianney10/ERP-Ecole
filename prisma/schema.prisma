@@ -1,0 +1,455 @@
+/**
+ * Fichier : prisma/schema.prisma
+ * Rôle : Modélisation complète du système de gestion scolaire
+ * Architecture : Postgres avec relations optimisées pour la performance
+ * Contexte : Système éducatif Côte d'Ivoire (primaire, collège, lycée)
+ */
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================================================
+// MODULE AUTHENTIFICATION & UTILISATEURS
+// ============================================================================
+
+enum UserRole {
+  ADMIN           // Super administrateur système
+  PRINCIPAL       // Directeur d'établissement
+  ACADEMIC_HEAD   // Censeur / Surveillant Général
+  TEACHER         // Enseignant
+  STUDENT         // Élève
+  PARENT          // Parent/Tuteur
+  ACCOUNTANT      // Comptable (extension future)
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+  GRADUATED       // Pour les élèves diplômés
+}
+
+model User {
+  id            String      @id @default(cuid())
+  email         String      @unique
+  phone         String?     @unique
+  passwordHash  String
+  role          UserRole
+  status        UserStatus  @default(ACTIVE)
+  
+  // Métadonnées
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  lastLoginAt   DateTime?
+  
+  // Relations polymorphiques selon le rôle
+  teacherProfile   Teacher?
+  studentProfile   Student?
+  parentProfile    Parent?
+  
+  // Notifications & Activités
+  notifications    Notification[]
+  auditLogs        AuditLog[]
+  
+  @@index([email])
+  @@index([role, status])
+}
+
+// ============================================================================
+// MODULE GESTION PÉDAGOGIQUE
+// ============================================================================
+
+enum AcademicLevel {
+  MATERNELLE
+  CP1
+  CP2
+  CE1
+  CE2
+  CM1
+  CM2
+  SIXIEME
+  CINQUIEME
+  QUATRIEME
+  TROISIEME
+  SECONDE
+  PREMIERE
+  TERMINALE
+}
+
+model AcademicYear {
+  id            String      @id @default(cuid())
+  name          String      // Ex: "2024-2025"
+  startDate     DateTime
+  endDate       DateTime
+  isCurrent     Boolean     @default(false)
+  
+  // Relations
+  classes       Class[]
+  enrollments   Enrollment[]
+  grades        Grade[]
+  
+  @@unique([name])
+}
+
+model Class {
+  id              String          @id @default(cuid())
+  name            String          // Ex: "6ème A", "CM2 B"
+  level           AcademicLevel
+  capacity        Int             @default(40)
+  academicYearId  String
+  
+  // Relations
+  academicYear    AcademicYear    @relation(fields: [academicYearId], references: [id], onDelete: Cascade)
+  enrollments     Enrollment[]
+  teacherAssignments TeacherSubjectAssignment[]
+  schedules       Schedule[]
+  
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  
+  @@index([academicYearId, level])
+}
+
+model Subject {
+  id              String      @id @default(cuid())
+  name            String      // Ex: "Mathématiques", "Français"
+  code            String      @unique // Ex: "MATH", "FR"
+  coefficient     Float       @default(1) // Pour le calcul des moyennes
+  
+  // Relations
+  teacherAssignments TeacherSubjectAssignment[]
+  grades          Grade[]
+  schedules       Schedule[]
+  
+  @@index([code])
+}
+
+// ============================================================================
+// MODULE ENSEIGNANTS
+// ============================================================================
+
+model Teacher {
+  id              String      @id @default(cuid())
+  userId          String      @unique
+  firstName       String
+  lastName        String
+  specialty       String?     // Ex: "Mathématiques"
+  hireDate        DateTime
+  
+  // Relations
+  user            User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  assignments     TeacherSubjectAssignment[]
+  grades          Grade[]
+  attendanceRecords AttendanceRecord[]
+  
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  
+  @@index([userId])
+}
+
+model TeacherSubjectAssignment {
+  id          String      @id @default(cuid())
+  teacherId   String
+  subjectId   String
+  classId     String
+  
+  // Relations
+  teacher     Teacher     @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  subject     Subject     @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  class       Class       @relation(fields: [classId], references: [id], onDelete: Cascade)
+  
+  createdAt   DateTime    @default(now())
+  
+  @@unique([teacherId, subjectId, classId]) // Un enseignant ne peut être assigné qu'une fois à la même matière/classe
+  @@index([classId, subjectId])
+}
+
+// ============================================================================
+// MODULE ÉLÈVES & INSCRIPTIONS
+// ============================================================================
+
+enum Gender {
+  MALE
+  FEMALE
+}
+
+model Student {
+  id              String      @id @default(cuid())
+  userId          String      @unique
+  firstName       String
+  lastName        String
+  dateOfBirth     DateTime
+  gender          Gender
+  placeOfBirth    String?
+  
+  // Informations scolaires
+  matricule       String      @unique // Numéro d'identification unique
+  
+  // Relations
+  user            User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  enrollments     Enrollment[]
+  parents         ParentStudent[]
+  grades          Grade[]
+  attendanceRecords AttendanceRecord[]
+  
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  
+  @@index([matricule])
+  @@index([userId])
+}
+
+model Enrollment {
+  id              String          @id @default(cuid())
+  studentId       String
+  classId         String
+  academicYearId  String
+  enrollmentDate  DateTime        @default(now())
+  status          UserStatus      @default(ACTIVE)
+  
+  // Relations
+  student         Student         @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  class           Class           @relation(fields: [classId], references: [id], onDelete: Cascade)
+  academicYear    AcademicYear    @relation(fields: [academicYearId], references: [id], onDelete: Cascade)
+  
+  @@unique([studentId, academicYearId]) // Un élève ne peut avoir qu'une inscription par année
+  @@index([classId, academicYearId])
+}
+
+// ============================================================================
+// MODULE PARENTS
+// ============================================================================
+
+model Parent {
+  id              String      @id @default(cuid())
+  userId          String      @unique
+  firstName       String
+  lastName        String
+  relationship    String      // Ex: "Père", "Mère", "Tuteur"
+  occupation      String?
+  address         String?
+  
+  // Relations
+  user            User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  children        ParentStudent[]
+  
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  
+  @@index([userId])
+}
+
+model ParentStudent {
+  id          String      @id @default(cuid())
+  parentId    String
+  studentId   String
+  isPrimary   Boolean     @default(true) // Contact principal
+  
+  // Relations
+  parent      Parent      @relation(fields: [parentId], references: [id], onDelete: Cascade)
+  student     Student     @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  
+  @@unique([parentId, studentId])
+  @@index([studentId])
+}
+
+// ============================================================================
+// MODULE ÉVALUATIONS & NOTES
+// ============================================================================
+
+enum GradeType {
+  DEVOIR          // Devoir en classe
+  COMPOSITION     // Examen de fin de trimestre
+  INTERROGATION   // Interrogation écrite
+  ORAL            // Exposé, oral
+  PRATIQUE        // TP, travaux pratiques
+}
+
+enum AcademicPeriod {
+  TRIMESTRE_1
+  TRIMESTRE_2
+  TRIMESTRE_3
+}
+
+model Grade {
+  id              String          @id @default(cuid())
+  studentId       String
+  subjectId       String
+  teacherId       String
+  academicYearId  String
+  
+  // Détails de l'évaluation
+  type            GradeType
+  period          AcademicPeriod
+  score           Float           // Note sur 20
+  maxScore        Float           @default(20)
+  weight          Float           @default(1) // Coefficient de la note
+  
+  // Métadonnées
+  evaluationDate  DateTime
+  description     String?         // Ex: "Devoir n°1 - Théorème de Pythagore"
+  
+  // Relations
+  student         Student         @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  subject         Subject         @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  teacher         Teacher         @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  academicYear    AcademicYear    @relation(fields: [academicYearId], references: [id], onDelete: Cascade)
+  
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  
+  @@index([studentId, academicYearId, period])
+  @@index([subjectId, period])
+}
+
+// ============================================================================
+// MODULE ASSIDUITÉ & DISCIPLINE
+// ============================================================================
+
+enum AttendanceStatus {
+  PRESENT
+  ABSENT
+  LATE            // Retard
+  EXCUSED         // Absence justifiée
+}
+
+model AttendanceRecord {
+  id              String              @id @default(cuid())
+  studentId       String
+  teacherId       String
+  date            DateTime
+  status          AttendanceStatus
+  
+  // Justification
+  isJustified     Boolean             @default(false)
+  justification   String?             // Raison de l'absence/retard
+  justifiedAt     DateTime?
+  
+  // Relations
+  student         Student             @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  teacher         Teacher             @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+  
+  @@unique([studentId, date]) // Un seul enregistrement par élève par jour
+  @@index([studentId, date])
+  @@index([date, status])
+}
+
+// ============================================================================
+// MODULE EMPLOI DU TEMPS
+// ============================================================================
+
+enum DayOfWeek {
+  MONDAY
+  TUESDAY
+  WEDNESDAY
+  THURSDAY
+  FRIDAY
+  SATURDAY
+}
+
+model Schedule {
+  id          String      @id @default(cuid())
+  classId     String
+  subjectId   String
+  dayOfWeek   DayOfWeek
+  startTime   String      // Format "HH:mm" ex: "08:00"
+  endTime     String      // Format "HH:mm" ex: "10:00"
+  room        String?     // Salle de classe
+  
+  // Relations
+  class       Class       @relation(fields: [classId], references: [id], onDelete: Cascade)
+  subject     Subject     @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  
+  @@index([classId, dayOfWeek])
+  @@index([dayOfWeek, startTime])
+}
+
+// ============================================================================
+// MODULE NOTIFICATIONS (Event-Driven)
+// ============================================================================
+
+enum NotificationType {
+  NEW_GRADE           // Nouvelle note publiée
+  ABSENCE_ALERT       // Alerte d'absence
+  LATE_ALERT          // Alerte de retard
+  ANNOUNCEMENT        // Annonce générale
+  REPORT_CARD_READY   // Bulletin disponible
+  SYSTEM              // Notification système
+}
+
+enum NotificationPriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+model Notification {
+  id          String                @id @default(cuid())
+  userId      String
+  type        NotificationType
+  priority    NotificationPriority  @default(MEDIUM)
+  
+  // Contenu
+  title       String
+  message     String
+  metadata    Json?                 // Données additionnelles (ex: gradeId, studentId)
+  
+  // État
+  isRead      Boolean               @default(false)
+  readAt      DateTime?
+  
+  // Relations
+  user        User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  createdAt   DateTime              @default(now())
+  
+  @@index([userId, isRead, createdAt])
+  @@index([type, createdAt])
+}
+
+// ============================================================================
+// MODULE AUDIT & SÉCURITÉ
+// ============================================================================
+
+enum AuditAction {
+  CREATE
+  UPDATE
+  DELETE
+  LOGIN
+  LOGOUT
+  EXPORT_DATA
+  PERMISSION_CHANGE
+}
+
+model AuditLog {
+  id          String      @id @default(cuid())
+  userId      String
+  action      AuditAction
+  entityType  String      // Ex: "Student", "Grade"
+  entityId    String?
+  changes     Json?       // Détails des modifications
+  ipAddress   String?
+  userAgent   String?
+  
+  // Relations
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  createdAt   DateTime    @default(now())
+  
+  @@index([userId, createdAt])
+  @@index([action, createdAt])
+}
