@@ -15,16 +15,13 @@ import {
   Clock,
   AlertTriangle,
   TrendingUp,
-  TrendingDown,
   Download,
-  Filter,
   ChevronLeft,
   ChevronRight
 } from 'lucide-react'
-import { Card, CardHeader } from '@/shared/components/ui/Card'
+import { Card } from '@/shared/components/ui/Card'
 import { Badge } from '@/shared/components/ui/Badge'
 import Button from '@/shared/components/ui/Button'
-import { useAuth } from '@/shared/hooks/useAuth'
 
 interface AttendanceRecord {
   id: string
@@ -36,7 +33,6 @@ interface AttendanceRecord {
 }
 
 export default function StudentAttendancePage() {
-  const { user } = useAuth()
   const [attendance, setAttendance] = useState<AttendanceRecord[]>([])
   const [loading, setLoading] = useState(true)
   const [selectedMonth, setSelectedMonth] = useState(new Date())

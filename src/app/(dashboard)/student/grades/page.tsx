@@ -20,7 +20,7 @@ import {
   ChevronDown,
   BarChart3
 } from 'lucide-react'
-import { Card, CardHeader } from '@/shared/components/ui/Card'
+import { Card } from '@/shared/components/ui/Card'
 import { Badge } from '@/shared/components/ui/Badge'
 import Button from '@/shared/components/ui/Button'
 import { useAuth } from '@/shared/hooks/useAuth'

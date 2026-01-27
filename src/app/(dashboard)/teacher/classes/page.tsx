@@ -12,12 +12,10 @@ import {
   Users,
   BookOpen,
   Calendar,
-  ChevronRight,
   Eye,
   FileText
 } from 'lucide-react'
-import Link from 'next/link'
-import { Card, CardHeader } from '@/shared/components/ui/Card'
+import { Card } from '@/shared/components/ui/Card'
 import { Badge } from '@/shared/components/ui/Badge'
 import Button from '@/shared/components/ui/Button'
 import { TeacherClass } from '@/types/common.types'

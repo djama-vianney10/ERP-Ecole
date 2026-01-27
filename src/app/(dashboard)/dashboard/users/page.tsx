@@ -5,8 +5,7 @@
 
 'use client'
 
-import React, { useState } from 'react'
-import { Users, Plus, Search, Filter } from 'lucide-react'
+import { Users, Plus} from 'lucide-react'
 import { Card } from '@/shared/components/ui/Card'
 import Button from '@/shared/components/ui/Button'
 

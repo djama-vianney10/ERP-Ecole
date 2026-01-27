@@ -11,7 +11,6 @@ import { Calendar, Plus, Search } from "lucide-react"
 import { useState } from "react"
 
 export default function AdminEventsPage() {
-  const [events, setEvents] = useState([])
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
 

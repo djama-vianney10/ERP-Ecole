@@ -12,10 +12,8 @@ import {
   TrendingUp, 
   Calendar,
   BookOpen,
-  Award,
   AlertCircle,
   Eye,
-  ChevronRight
 } from 'lucide-react'
 import Link from 'next/link'
 import { Card, CardHeader } from '@/shared/components/ui/Card'

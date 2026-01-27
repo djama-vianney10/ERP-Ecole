@@ -12,19 +12,16 @@ import {
   Bell, 
   CheckCircle2, 
   AlertCircle, 
-  Calendar,
   BookOpen,
   TrendingUp,
-  Filter,
   Search,
   Eye,
   Trash2,
   ChevronDown
 } from 'lucide-react'
-import { Card, CardHeader } from '@/shared/components/ui/Card'
+import { Card } from '@/shared/components/ui/Card'
 import { Badge } from '@/shared/components/ui/Badge'
 import Button from '@/shared/components/ui/Button'
-import { useAuth } from '@/shared/hooks/useAuth'
 
 interface Notification {
   id: string
@@ -39,7 +36,6 @@ interface Notification {
 }
 
 export default function ParentNotificationsPage() {
-  const { user } = useAuth()
   const [notifications, setNotifications] = useState<Notification[]>([])
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState<'all' | 'unread' | 'read'>('all')
