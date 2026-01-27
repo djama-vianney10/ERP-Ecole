@@ -75,28 +75,36 @@ export class RBACService {
    * Vérifier si un rôle est administratif
    */
   static isAdminRole(role: UserRole): boolean {
-    return [UserRole.ADMIN, UserRole.PRINCIPAL, UserRole.ACADEMIC_HEAD].includes(role)
-  }
+  const adminRoles: readonly UserRole[] = [
+    UserRole.ADMIN,
+    UserRole.PRINCIPAL,
+    UserRole.ACADEMIC_HEAD,
+  ]
+
+  return adminRoles.includes(role)
+}
 
   /**
    * Vérifier si un utilisateur peut gérer un autre utilisateur
    */
   static canManageUser(managerRole: UserRole, targetRole: UserRole): boolean {
-    // Admin peut tout
-    if (managerRole === UserRole.ADMIN) return true
+  if (managerRole === UserRole.ADMIN) return true
 
-    // Principal peut gérer tout sauf admin
-    if (managerRole === UserRole.PRINCIPAL && targetRole !== UserRole.ADMIN) {
-      return true
-    }
-
-    // Censeur peut gérer enseignants et élèves
-    if (managerRole === UserRole.ACADEMIC_HEAD) {
-      return [UserRole.TEACHER, UserRole.STUDENT].includes(targetRole)
-    }
-
-    return false
+  if (managerRole === UserRole.PRINCIPAL) {
+    return targetRole !== UserRole.ADMIN
   }
+
+  if (managerRole === UserRole.ACADEMIC_HEAD) {
+    const manageableRoles: UserRole[] = [
+      UserRole.TEACHER,
+      UserRole.STUDENT,
+    ]
+
+    return manageableRoles.includes(targetRole)
+  }
+
+  return false
+}
 
   /**
    * Obtenir les rôles accessibles pour création par un rôle donné

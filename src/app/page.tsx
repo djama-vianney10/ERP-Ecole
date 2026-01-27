@@ -1,7 +1,7 @@
 /**
  * Fichier : src/app/page.tsx
- * Rôle : Page d'accueil publique avec design moderne et animations spectaculaires
- * Architecture : Landing page avec sections multiples et navigation fluide
+ * Rôle : Page d'accueil publique avec design moderne
+ * Fonctionnalités : Recherche et pagination des événements + Images uploadées par admin
  */
 
 'use client'
@@ -24,13 +24,27 @@ import {
   Sparkles,
   Target,
   Heart,
-  Zap
+  Zap,
+  Search,
+  ChevronLeft,
+  ChevronRight,
+  Image as ImageIcon,
 } from 'lucide-react'
 import Link from 'next/link'
 import { cn } from '@/shared/lib/utils'
 import Button from '@/shared/components/ui/Button'
 import { Card } from '@/shared/components/ui/Card'
 import { Badge } from '@/shared/components/ui/Badge'
+
+interface Event {
+  id: string
+  title: string
+  description: string
+  eventDate: string
+  endDate?: string
+  type: string
+  imageUrl?: string
+}
 
 export default function HomePage() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -40,6 +54,13 @@ export default function HomePage() {
   // Parallax effect pour le hero
   const heroY = useTransform(scrollY, [0, 500], [0, 150])
   const heroOpacity = useTransform(scrollY, [0, 300], [1, 0])
+
+  // États pour les événements
+  const [events, setEvents] = useState<Event[]>([])
+  const [loading, setLoading] = useState(true)
+  const [searchQuery, setSearchQuery] = useState('')
+  const [currentPage, setCurrentPage] = useState(1)
+  const eventsPerPage = 6
 
   // Détection de la section active pour la navbar
   useEffect(() => {
@@ -60,56 +81,73 @@ export default function HomePage() {
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
-  // Données mockées
-  const upcomingEvents = [
-    {
-      id: 1,
-      title: 'Composition Trimestre 2',
-      date: '22-26 Janvier 2025',
-      type: 'exam',
-      color: 'from-red-500 to-orange-500'
-    },
-    {
-      id: 2,
-      title: 'Vacances Scolaires',
-      date: '15 Février - 2 Mars 2025',
-      type: 'holiday',
-      color: 'from-green-500 to-emerald-500'
-    },
-    {
-      id: 3,
-      title: 'Journée Portes Ouvertes',
-      date: '28 Janvier 2025',
-      type: 'event',
-      color: 'from-blue-500 to-cyan-500'
-    },
-  ]
+  // Fetch des événements depuis l'API
+  useEffect(() => {
+    fetchEvents()
+  }, [])
+
+  const fetchEvents = async () => {
+    try {
+      setLoading(true)
+      const response = await fetch('/api/events')
+      const data = await response.json()
+      
+      if (data.success) {
+        setEvents(data.events || [])
+      }
+    } catch (error) {
+      console.error('Error fetching events:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // Filtrage des événements
+  const filteredEvents = events.filter(event =>
+    event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    event.description?.toLowerCase().includes(searchQuery.toLowerCase())
+  )
+
+  // Pagination
+  const totalPages = Math.ceil(filteredEvents.length / eventsPerPage)
+  const startIndex = (currentPage - 1) * eventsPerPage
+  const currentEvents = filteredEvents.slice(startIndex, startIndex + eventsPerPage)
+
+  // Reset page quand on recherche
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [searchQuery])
+
+  const getEventTypeLabel = (type: string) => {
+    const labels: { [key: string]: string } = {
+      'EXAM': 'Examen',
+      'HOLIDAY': 'Vacances',
+      'ANNOUNCEMENT': 'Annonce',
+      'SPORTS': 'Sport',
+      'CULTURAL': 'Culturel',
+      'PARENT_MEETING': 'Réunion Parents',
+      'OTHER': 'Autre',
+    }
+    return labels[type] || type
+  }
+
+  const getEventTypeVariant = (type: string) => {
+    const variants: { [key: string]: any } = {
+      'EXAM': 'error',
+      'HOLIDAY': 'success',
+      'ANNOUNCEMENT': 'info',
+      'SPORTS': 'warning',
+      'CULTURAL': 'neutral',
+      'PARENT_MEETING': 'primary',
+      'OTHER': 'neutral',
+    }
+    return variants[type] || 'neutral'
+  }
 
   const topStudents = [
-    {
-      id: 1,
-      name: 'Aya Koné',
-      class: '3ème A',
-      average: 18.5,
-      rank: 1,
-      avatar: '🏆',
-    },
-    {
-      id: 2,
-      name: 'Yao Kouamé',
-      class: '6ème A',
-      average: 17.8,
-      rank: 2,
-      avatar: '🥈',
-    },
-    {
-      id: 3,
-      name: 'Adjoua Koffi',
-      class: 'Terminale C',
-      average: 17.2,
-      rank: 3,
-      avatar: '🥉',
-    },
+    { id: 1, name: 'Aya Koné', class: '3ème A', average: 18.5, rank: 1, avatar: '🏆' },
+    { id: 2, name: 'Yao Kouamé', class: '6ème A', average: 17.8, rank: 2, avatar: '🥈' },
+    { id: 3, name: 'Adjoua Koffi', class: 'Terminale C', average: 17.2, rank: 3, avatar: '🥉' },
   ]
 
   const stats = [
@@ -160,7 +198,6 @@ export default function HomePage() {
             )}
           >
             <div className="flex items-center justify-between h-16 px-6">
-              {/* Logo */}
               <Link href="/" className="flex items-center gap-3">
                 <motion.div
                   whileHover={{ rotate: 360, scale: 1.1 }}
@@ -170,12 +207,11 @@ export default function HomePage() {
                   <GraduationCap className="w-6 h-6 text-white" />
                 </motion.div>
                 <div className="hidden sm:block">
-                  <span className="font-bold text-xl text-neutral-900">ERP Scolaire</span>
-                  <p className="text-xs text-neutral-600">Excellence & Innovation</p>
+                  <span className="font-bold text-xl text-neutral-900">GS Arhogninci</span>
+                  <p className="text-xs text-neutral-600">Temple Du Savoir</p>
                 </div>
               </Link>
 
-              {/* Desktop Navigation */}
               <div className="hidden md:flex items-center gap-1">
                 {[
                   { id: 'hero', label: 'Accueil' },
@@ -200,12 +236,9 @@ export default function HomePage() {
                 ))}
               </div>
 
-              {/* CTA Buttons */}
               <div className="flex items-center gap-3">
                 <Link href="/login" className="hidden sm:block">
-                  <Button variant="outline" size="sm">
-                    Connexion
-                  </Button>
+                  <Button variant="outline" size="sm">Connexion</Button>
                 </Link>
                 <Link href="/login">
                   <Button variant="primary" size="sm" rightIcon={<ArrowRight className="w-4 h-4" />}>
@@ -213,7 +246,6 @@ export default function HomePage() {
                   </Button>
                 </Link>
                 
-                {/* Mobile Menu Button */}
                 <button
                   onClick={() => setIsMenuOpen(!isMenuOpen)}
                   className="md:hidden p-2 rounded-lg hover:bg-neutral-100"
@@ -225,7 +257,6 @@ export default function HomePage() {
           </motion.div>
         </div>
 
-        {/* Mobile Menu */}
         {isMenuOpen && (
           <motion.div
             initial={{ opacity: 0, y: -20 }}
@@ -247,32 +278,23 @@ export default function HomePage() {
         )}
       </motion.nav>
 
-      {/* Hero Section - Spectaculaire */}
+      {/* Hero Section */}
       <section id="hero" className="relative min-h-screen flex items-center overflow-hidden pt-20">
-        {/* Background Gradient Animé */}
         <div className="absolute inset-0 bg-gradient-to-br from-primary-50 via-white to-secondary-50" />
         
-        {/* Animated Circles */}
         <motion.div
-          animate={{
-            scale: [1, 1.2, 1],
-            rotate: [0, 180, 360],
-          }}
+          animate={{ scale: [1, 1.2, 1], rotate: [0, 180, 360] }}
           transition={{ duration: 20, repeat: Infinity }}
           className="absolute top-20 -left-20 w-96 h-96 bg-primary-200/30 rounded-full blur-3xl"
         />
         <motion.div
-          animate={{
-            scale: [1.2, 1, 1.2],
-            rotate: [360, 180, 0],
-          }}
+          animate={{ scale: [1.2, 1, 1.2], rotate: [360, 180, 0] }}
           transition={{ duration: 25, repeat: Infinity }}
           className="absolute bottom-20 -right-20 w-96 h-96 bg-secondary-200/30 rounded-full blur-3xl"
         />
 
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
-            {/* Left Content */}
             <motion.div
               style={{ y: heroY, opacity: heroOpacity }}
               className="text-center lg:text-left"
@@ -334,7 +356,6 @@ export default function HomePage() {
                 </Button>
               </motion.div>
 
-              {/* Stats Mini */}
               <motion.div
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -358,7 +379,6 @@ export default function HomePage() {
               </motion.div>
             </motion.div>
 
-            {/* Right - 3D Card Mockup */}
             <motion.div
               initial={{ opacity: 0, scale: 0.8, rotateY: -30 }}
               animate={{ opacity: 1, scale: 1, rotateY: 0 }}
@@ -370,7 +390,6 @@ export default function HomePage() {
                 transition={{ duration: 4, repeat: Infinity }}
                 className="relative"
               >
-                {/* Mockup Dashboard */}
                 <div className="bg-white rounded-2xl shadow-strong p-6 border border-neutral-200">
                   <div className="flex items-center gap-2 mb-6">
                     <div className="w-3 h-3 rounded-full bg-red-500" />
@@ -394,7 +413,6 @@ export default function HomePage() {
                   </div>
                 </div>
 
-                {/* Floating Elements */}
                 <motion.div
                   animate={{ x: [0, 10, 0], y: [0, -10, 0] }}
                   transition={{ duration: 3, repeat: Infinity }}
@@ -414,7 +432,6 @@ export default function HomePage() {
             </motion.div>
           </div>
 
-          {/* Scroll Indicator */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -434,7 +451,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* About Section - Nos Valeurs */}
+      {/* About Section */}
       <section id="about" className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
@@ -478,7 +495,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Activities & Events Section */}
+      {/* Activities & Events Section - AVEC RECHERCHE ET PAGINATION */}
       <section id="activities" className="py-20 bg-neutral-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
@@ -496,48 +513,168 @@ export default function HomePage() {
             </p>
           </motion.div>
 
-          <div className="grid md:grid-cols-3 gap-8">
-            {upcomingEvents.map((event, index) => (
-              <motion.div
-                key={event.id}
-                initial={{ opacity: 0, scale: 0.9 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.15 }}
-                whileHover={{ y: -10 }}
-              >
-                <Card padding="none" className="overflow-hidden h-full">
-                  <div className={cn('h-32 bg-gradient-to-br', event.color, 'flex items-center justify-center')}>
+          {/* Barre de recherche */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="mb-8"
+          >
+            <div className="relative max-w-2xl mx-auto">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-400" />
+              <input
+                type="text"
+                placeholder="Rechercher un événement..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-12 pr-4 py-4 border-2 border-neutral-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all text-lg"
+              />
+            </div>
+          </motion.div>
+
+          {/* Loading state */}
+          {loading ? (
+            <div className="flex items-center justify-center py-20">
+              <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-primary-500" />
+            </div>
+          ) : (
+            <>
+              {/* Grille d'événements */}
+              {currentEvents.length === 0 ? (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="text-center py-20"
+                >
+                  <Calendar className="w-20 h-20 text-neutral-300 mx-auto mb-6" />
+                  <p className="text-xl text-neutral-600">
+                    {searchQuery 
+                      ? 'Aucun événement trouvé pour votre recherche' 
+                      : 'Aucun événement à venir pour le moment'}
+                  </p>
+                </motion.div>
+              ) : (
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+                  {currentEvents.map((event, index) => (
                     <motion.div
-                      animate={{ rotate: [0, 360] }}
-                      transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
+                      key={event.id}
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      whileInView={{ opacity: 1, scale: 1 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: index * 0.1 }}
+                      whileHover={{ y: -10 }}
                     >
-                      <Calendar className="w-16 h-16 text-white" />
+                      <Card padding="none" className="overflow-hidden h-full">
+                        {/* Image ou placeholder */}
+                        <div className="h-48 overflow-hidden bg-gradient-to-br from-primary-100 to-secondary-100">
+                          {event.imageUrl ? (
+                            <img
+                              src={event.imageUrl}
+                              alt={event.title}
+                              className="w-full h-full object-cover transition-transform hover:scale-110 duration-300"
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center">
+                              <Calendar className="w-16 h-16 text-neutral-400" />
+                            </div>
+                          )}
+                        </div>
+
+                        <div className="p-6">
+                          <Badge
+                            variant={getEventTypeVariant(event.type)}
+                            className="mb-3"
+                          >
+                            {getEventTypeLabel(event.type)}
+                          </Badge>
+                          
+                          <h3 className="text-xl font-bold text-neutral-900 mb-2">
+                            {event.title}
+                          </h3>
+                          
+                          {event.description && (
+                            <p className="text-neutral-600 mb-4 line-clamp-2">
+                              {event.description}
+                            </p>
+                          )}
+                          
+                          <div className="flex items-center gap-2 text-neutral-600">
+                            <Calendar className="w-4 h-4" />
+                            <span className="text-sm">
+                              {new Date(event.eventDate).toLocaleDateString('fr-FR', {
+                                day: 'numeric',
+                                month: 'long',
+                                year: 'numeric'
+                              })}
+                              {event.endDate && (
+                                <> - {new Date(event.endDate).toLocaleDateString('fr-FR', {
+                                  day: 'numeric',
+                                  month: 'long'
+                                })}</>
+                              )}
+                            </span>
+                          </div>
+                        </div>
+                      </Card>
                     </motion.div>
+                  ))}
+                </div>
+              )}
+
+              {/* Pagination */}
+              {totalPages > 1 && (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  className="flex items-center justify-center gap-2"
+                >
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                    disabled={currentPage === 1}
+                    leftIcon={<ChevronLeft className="w-4 h-4" />}
+                  >
+                    Précédent
+                  </Button>
+
+                  <div className="flex items-center gap-2">
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                      <button
+                        key={page}
+                        onClick={() => setCurrentPage(page)}
+                        className={`w-10 h-10 rounded-lg font-medium transition-all ${
+                          currentPage === page
+                            ? 'bg-primary-500 text-white shadow-md'
+                            : 'bg-white text-neutral-700 hover:bg-neutral-100 border border-neutral-200'
+                        }`}
+                      >
+                        {page}
+                      </button>
+                    ))}
                   </div>
-                  <div className="p-6">
-                    <Badge
-                      variant={
-                        event.type === 'exam' ? 'error' :
-                        event.type === 'holiday' ? 'success' :
-                        'info'
-                      }
-                      className="mb-3"
-                    >
-                      {event.type === 'exam' ? 'Examen' : event.type === 'holiday' ? 'Vacances' : 'Événement'}
-                    </Badge>
-                    <h3 className="text-xl font-bold text-neutral-900 mb-2">
-                      {event.title}
-                    </h3>
-                    <p className="text-neutral-600 flex items-center gap-2">
-                      <Calendar className="w-4 h-4" />
-                      {event.date}
-                    </p>
-                  </div>
-                </Card>
-              </motion.div>
-            ))}
-          </div>
+
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                    disabled={currentPage === totalPages}
+                    rightIcon={<ChevronRight className="w-4 h-4" />}
+                  >
+                    Suivant
+                  </Button>
+                </motion.div>
+              )}
+
+              {/* Info résultats */}
+              {filteredEvents.length > 0 && (
+                <p className="text-center text-neutral-600 mt-6">
+                  Affichage de {startIndex + 1} à {Math.min(startIndex + eventsPerPage, filteredEvents.length)} sur {filteredEvents.length} événement{filteredEvents.length > 1 ? 's' : ''}
+                </p>
+              )}
+            </>
+          )}
         </div>
       </section>
 
