@@ -208,7 +208,7 @@ export default function HomePage() {
                   <GraduationCap className="w-6 h-6 text-white" />
                 </motion.div>
                 <div className="hidden sm:block">
-                  <span className="font-bold text-xl text-neutral-900">GS Arhogninci</span>
+                  <span className="font-bold text-xl text-neutral-900">GS Murielle</span>
                   <p className="text-xs text-neutral-600">Temple Du Savoir</p>
                 </div>
               </Link>
