@@ -19,16 +19,16 @@ const montserrat = Montserrat({
 })
 
 export const metadata: Metadata = {
-  title: 'ERP Scolaire CI - Excellence & Innovation Éducative',
-  description: 'Plateforme moderne de gestion scolaire pour les établissements d\'excellence en Côte d\'Ivoire. Suivi temps réel, notifications instantanées et outils pédagogiques innovants.',
-  keywords: ['ERP scolaire', 'Côte d\'Ivoire', 'gestion scolaire', 'éducation', 'Abidjan'],
-  authors: [{ name: 'ERP Scolaire CI' }],
+  title: 'GS Arhogninci - Bingerville',
+  description: 'Plateforme moderne de gestion scolaire pour le Groupe Scolaire Arhogninci de Bingerville. Suivi temps réel, notifications instantanées et outils pédagogiques innovants.',
+  keywords: ['GS Arhoginci', 'Côte d\'Ivoire', 'gestion scolaire', 'éducation', 'Abidjan', 'Bingerville', 'groupe scolaire', 'collége', 'lycée'],
+  authors: [{ name: 'Djama A Vianney' }],
   icons: {
     icon: '/favicon.ico',
   },
   openGraph: {
-    title: 'ERP Scolaire CI - Excellence & Innovation',
-    description: 'Système de gestion éducative moderne pour la Côte d\'Ivoire',
+    title: 'GS Arhogninci - Bingerville - Temple Du Savoir',
+    description: 'Système de gestion éducative moderne',
     type: 'website',
   },
 }

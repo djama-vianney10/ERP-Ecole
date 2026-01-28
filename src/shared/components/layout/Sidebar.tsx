@@ -174,12 +174,12 @@ const Sidebar: React.FC = () => {
         <div className="flex flex-col flex-grow bg-white border-r border-neutral-200 overflow-y-auto">
           {/* Logo */}
           <div className="flex items-center gap-3 px-6 h-16 border-b border-neutral-200">
-            <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-secondary-500 rounded-lg flex items-center justify-center">
+            <div className="w-10 h-10 bg-gradient-to-br from-primary-50 to-blue-900 rounded-lg flex items-center justify-center">
               <GraduationCap className="w-6 h-6 text-white" />
             </div>
             <div>
-              <h1 className="font-bold text-neutral-900">ERP Scolaire</h1>
-              <p className="text-xs text-neutral-500">Côte d'Ivoire</p>
+              <h1 className="font-bold text-neutral-900">GS Arhogninci</h1>
+              <p className="text-xs text-neutral-500">Temple Du Savoir</p>
             </div>
           </div>
 
@@ -195,7 +195,7 @@ const Sidebar: React.FC = () => {
                   className={cn(
                     'relative flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all',
                     isActive
-                      ? 'bg-primary-50 text-primary-700'
+                      ? 'bg-primary-50 text-blue-700'
                       : 'text-neutral-700 hover:bg-neutral-100'
                   )}
                 >
@@ -217,7 +217,7 @@ const Sidebar: React.FC = () => {
           {user && (
             <div className="p-4 border-t border-neutral-200">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-gradient-to-br from-primary-400 to-secondary-400 rounded-full flex items-center justify-center text-white font-semibold">
+                <div className="w-10 h-10 bg-gradient-to-br bg-blue-900 rounded-full flex items-center justify-center text-white font-semibold">
                   {user.email?.[0]?.toUpperCase() || 'U'}
                 </div>
                 <div className="flex-1 min-w-0">

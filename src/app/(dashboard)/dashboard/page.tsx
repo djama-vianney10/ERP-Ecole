@@ -111,10 +111,10 @@ export default function DashboardPage() {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-gradient-to-br from-primary-500 to-secondary-500 rounded-2xl p-8 text-white"
+        className="bg-gradient-to-br bg-blue-900  rounded-2xl p-8 text-white"
       >
         <h1 className="text-3xl font-bold mb-2">
-          Bonjour, {user?.firstName} ! 👋
+          Bonjour, {user?.firstName} !
         </h1>
         <p className="text-primary-100">
           Bienvenue sur votre tableau de bord. Voici un aperçu de votre activité.

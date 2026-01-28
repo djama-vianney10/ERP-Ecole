@@ -34,7 +34,7 @@ export default function Loading() {
               repeat: Infinity,
               ease: 'linear'
             }}
-            className="w-20 h-20 bg-gradient-to-br from-primary-500 to-secondary-500 rounded-2xl flex items-center justify-center shadow-strong"
+            className="w-20 h-20 bg-gradient-to-br from-primary-50 to-blue-900 rounded-2xl flex items-center justify-center shadow-strong"
           >
             <GraduationCap className="w-10 h-10 text-white" />
           </motion.div>
@@ -60,7 +60,7 @@ export default function Loading() {
               repeat: Infinity,
               ease: 'easeInOut'
             }}
-            className="h-full w-1/2 bg-gradient-to-r from-primary-500 to-secondary-500 rounded-full"
+            className="h-full w-1/2 bg-gradient-to-r bg-blue-900 rounded-full"
           />
         </div>
 

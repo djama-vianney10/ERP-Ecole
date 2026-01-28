@@ -9,11 +9,12 @@
 import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
-import { Mail, Lock, LogIn, AlertCircle } from 'lucide-react'
+import { Mail, Lock, LogIn, AlertCircle, ArrowBigLeft } from 'lucide-react'
 import { useAuth } from '@/shared/hooks/useAuth'
 import Input from '@/shared/components/ui/Input'
 import Button from '@/shared/components/ui/Button'
 import { Card } from '@/shared/components/ui/Card'
+import Link from 'next/link'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -52,13 +53,13 @@ export default function LoginPage() {
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             transition={{ delay: 0.2, type: 'spring', stiffness: 200 }}
-            className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-primary-500 to-secondary-500 rounded-2xl mb-4 shadow-medium"
+            className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-primary-50 to-blue-900 rounded-2xl mb-4 shadow-medium"
           >
-            <span className="text-3xl font-bold text-white">E</span>
+            <span className="text-3xl font-bold text-white">GSA</span>
           </motion.div>
           
           <h1 className="text-3xl font-bold text-neutral-900 mb-2">
-            ERP Scolaire
+            GS Arhogninci
           </h1>
           <p className="text-neutral-600">
             Système de Gestion Éducative - Côte d'Ivoire
@@ -121,38 +122,18 @@ export default function LoginPage() {
               </a>
             </p>
           </div>
+          <div className='mt-6 flex flex-row justify-center items-center'>
+            <ArrowBigLeft className='w-5 h-5 text-blue-900' />
+            <Link href="/"  className='text-sm text-blue-900 text-center'>
+                Retour à l'Acceuil
+            </Link>
+          </div>
         </Card>
 
         {/* Footer */}
         <p className="text-center text-sm text-neutral-500 mt-6">
-          © 2024 ERP Scolaire CI. Tous droits réservés.
+          © 2024 GS Arhogninci CI. Tous droits réservés.
         </p>
-
-        {/* Comptes de démonstration */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.5 }}
-          className="mt-8 p-4 bg-white/50 backdrop-blur-sm rounded-xl border border-neutral-200"
-        >
-          <p className="text-xs font-semibold text-neutral-700 mb-3">
-            Comptes de démonstration :
-          </p>
-          <div className="space-y-2 text-xs text-neutral-600">
-            <div>
-              <span className="font-medium">Admin :</span> admin@ecole.ci / admin123
-            </div>
-            <div>
-              <span className="font-medium">Enseignant :</span> prof@ecole.ci / prof123
-            </div>
-            <div>
-              <span className="font-medium">Élève :</span> eleve@ecole.ci / eleve123
-            </div>
-            <div>
-              <span className="font-medium">Parent :</span> parent@ecole.ci / parent123
-            </div>
-          </div>
-        </motion.div>
       </motion.div>
     </div>
   )

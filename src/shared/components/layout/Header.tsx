@@ -47,7 +47,7 @@ const Header: React.FC = () => {
               onClick={() => setShowUserMenu(!showUserMenu)}
               className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-neutral-100 transition-colors"
             >
-              <div className="w-8 h-8 bg-gradient-to-br from-primary-400 to-secondary-400 rounded-full flex items-center justify-center text-white text-sm font-semibold">
+              <div className="w-8 h-8 bg-gradient-to-br bg-blue-900 rounded-full flex items-center justify-center text-white text-sm font-semibold">
                 {user?.firstName?.[0]}{user?.lastName?.[0]}
               </div>
               <span className="text-sm font-medium text-neutral-700 hidden sm:inline">

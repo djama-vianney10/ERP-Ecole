@@ -130,7 +130,7 @@
 
   /* Utilitaires custom */
   .gradient-primary {
-    @apply bg-gradient-to-r from-primary-500 to-secondary-500;
+    @apply bg-gradient-to-l from-primary-600 to-blue-600;
   }
 
   .gradient-shine {
@@ -161,7 +161,7 @@
   }
 
   .text-gradient {
-    @apply bg-gradient-to-r from-primary-600 to-secondary-600 bg-clip-text text-transparent;
+    @apply bg-gradient-to-l from-primary-600 to-blue-600 bg-clip-text text-transparent;
   }
 
   /* Glass morphism effect */

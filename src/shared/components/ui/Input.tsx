@@ -58,7 +58,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
             className={cn(
               'w-full px-4 py-2.5 rounded-lg border transition-colors',
               'text-neutral-900 placeholder:text-neutral-400',
-              'focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent',
+              'focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent',
               error
                 ? 'border-red-300 bg-red-50 focus:ring-red-500'
                 : 'border-neutral-300 bg-white hover:border-neutral-400',

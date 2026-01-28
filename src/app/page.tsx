@@ -35,6 +35,7 @@ import { cn } from '@/shared/lib/utils'
 import Button from '@/shared/components/ui/Button'
 import { Card } from '@/shared/components/ui/Card'
 import { Badge } from '@/shared/components/ui/Badge'
+import Image from 'next/image'
 
 interface Event {
   id: string
@@ -202,7 +203,7 @@ export default function HomePage() {
                 <motion.div
                   whileHover={{ rotate: 360, scale: 1.1 }}
                   transition={{ duration: 0.6 }}
-                  className="w-10 h-10 bg-gradient-to-br from-primary-500 to-secondary-500 rounded-xl flex items-center justify-center shadow-lg"
+                  className="w-10 h-10 bg-gradient-to-br from-primary-50 to-blue-900 rounded-xl flex items-center justify-center shadow-lg"
                 >
                   <GraduationCap className="w-6 h-6 text-white" />
                 </motion.div>
@@ -227,7 +228,7 @@ export default function HomePage() {
                     className={cn(
                       'px-4 py-2 rounded-lg text-sm font-medium transition-all',
                       activeSection === item.id
-                        ? 'bg-primary-500 text-white shadow-md'
+                        ? 'bg-blue-900 text-white shadow-md'
                         : 'text-neutral-700 hover:bg-neutral-100'
                     )}
                   >
@@ -328,7 +329,7 @@ export default function HomePage() {
                 transition={{ delay: 0.4 }}
                 className="text-xl text-neutral-600 mb-8 max-w-2xl"
               >
-                Plateforme moderne de gestion scolaire pour les établissements d'excellence en Côte d'Ivoire. Suivi en temps réel, notifications instantanées et outils pédagogiques innovants.
+                Plateforme moderne de gestion scolaire pour le Groupe Scolaire Arhogninci de Bingerville. Suivi en temps réel, notifications instantanées et outils pédagogiques innovants.
               </motion.p>
 
               <motion.div
@@ -363,7 +364,7 @@ export default function HomePage() {
                 className="flex items-center gap-8 mt-12 justify-center lg:justify-start"
               >
                 <div>
-                  <p className="text-3xl font-bold text-primary-600">845+</p>
+                  <p className="text-3xl font-bold text-blue-600">845+</p>
                   <p className="text-sm text-neutral-600">Élèves</p>
                 </div>
                 <div className="w-px h-12 bg-neutral-200" />
@@ -373,7 +374,7 @@ export default function HomePage() {
                 </div>
                 <div className="w-px h-12 bg-neutral-200" />
                 <div>
-                  <p className="text-3xl font-bold text-accent-600">42</p>
+                  <p className="text-3xl font-bold text-blue-600">42</p>
                   <p className="text-sm text-neutral-600">Enseignants</p>
                 </div>
               </motion.div>
@@ -386,49 +387,44 @@ export default function HomePage() {
               className="hidden lg:block"
             >
               <motion.div
-                animate={{ y: [0, -20, 0] }}
-                transition={{ duration: 4, repeat: Infinity }}
-                className="relative"
-              >
-                <div className="bg-white rounded-2xl shadow-strong p-6 border border-neutral-200">
-                  <div className="flex items-center gap-2 mb-6">
-                    <div className="w-3 h-3 rounded-full bg-red-500" />
-                    <div className="w-3 h-3 rounded-full bg-yellow-500" />
-                    <div className="w-3 h-3 rounded-full bg-green-500" />
-                  </div>
-                  
-                  <div className="space-y-4">
-                    <div className="h-8 bg-gradient-to-r from-primary-200 to-secondary-200 rounded-lg animate-pulse" />
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="h-24 bg-primary-50 rounded-lg p-4">
-                        <Award className="w-6 h-6 text-primary-500 mb-2" />
-                        <div className="h-4 bg-primary-200 rounded w-3/4" />
-                      </div>
-                      <div className="h-24 bg-secondary-50 rounded-lg p-4">
-                        <TrendingUp className="w-6 h-6 text-secondary-500 mb-2" />
-                        <div className="h-4 bg-secondary-200 rounded w-3/4" />
-                      </div>
-                    </div>
-                    <div className="h-32 bg-neutral-50 rounded-lg" />
-                  </div>
-                </div>
+  initial={{ opacity: 0, scale: 0.9, x: 80 }}
+  animate={{ opacity: 1, scale: 1, x: 0 }}
+  transition={{ delay: 0.6, duration: 0.8, ease: 'easeOut' }}
+  className="hidden lg:flex justify-center"
+>
+  <motion.div
+    animate={{ y: [0, -15, 0] }}
+    transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }}
+    className="relative"
+  >
+    {/* Glow derrière l’image */}
+    <div className="absolute -inset-6 bg-gradient-to-r from-primary-300/30 to-secondary-300/30 blur-3xl rounded-full" />
 
-                <motion.div
-                  animate={{ x: [0, 10, 0], y: [0, -10, 0] }}
-                  transition={{ duration: 3, repeat: Infinity }}
-                  className="absolute -top-6 -right-6 bg-white rounded-xl shadow-medium p-4"
-                >
-                  <Star className="w-8 h-8 text-accent-500" />
-                </motion.div>
+    {/* Image principale */}
+    <div className="relative rounded-3xl overflow-hidden shadow-strong border border-white/50">
+      <Image
+        src="/images/hero-image.png"
+        alt="Groupe Scolaire Arhogninci"
+        width={520}
+        height={520}
+        priority
+        className="object-cover"
+      />
+    </div>
 
-                <motion.div
-                  animate={{ x: [0, -10, 0], y: [0, 10, 0] }}
-                  transition={{ duration: 4, repeat: Infinity }}
-                  className="absolute -bottom-6 -left-6 bg-white rounded-xl shadow-medium p-4"
-                >
-                  <Trophy className="w-8 h-8 text-primary-500" />
-                </motion.div>
-              </motion.div>
+    {/* Badge flottant */}
+    <motion.div
+      animate={{ x: [0, 10, 0], y: [0, -10, 0] }}
+      transition={{ duration: 4, repeat: Infinity }}
+      className="absolute -top-6 -right-6 bg-white rounded-xl shadow-medium px-4 py-2"
+    >
+      <span className="text-sm font-semibold text-primary-600">
+        🎓 Excellence Académique
+      </span>
+    </motion.div>
+  </motion.div>
+</motion.div>
+
             </motion.div>
           </div>
 
@@ -853,7 +849,7 @@ export default function HomePage() {
       </section>
 
       {/* Footer CTA */}
-      <section className="py-20 bg-gradient-to-br from-primary-500 via-primary-600 to-secondary-600 relative overflow-hidden">
+      <section className="py-20 bg-gradient-to-tr from-blue-900 to-primary-500 relative overflow-hidden">
         <motion.div
           animate={{ x: ['-100%', '100%'] }}
           transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
@@ -903,13 +899,13 @@ export default function HomePage() {
           <div className="grid md:grid-cols-4 gap-8 mb-8">
             <div>
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-secondary-500 rounded-xl flex items-center justify-center">
+                <div className="w-10 h-10 bg-gradient-to-br from-primary-50 to-blue-900 rounded-xl flex items-center justify-center">
                   <GraduationCap className="w-6 h-6 text-white" />
                 </div>
-                <span className="font-bold text-lg">ERP Scolaire</span>
+                <span className="font-bold text-lg">GS Arhogninci</span>
               </div>
               <p className="text-neutral-400 text-sm">
-                Excellence & Innovation pour l'éducation en Côte d'Ivoire
+                Temple Du Savoir
               </p>
             </div>
 
@@ -945,7 +941,7 @@ export default function HomePage() {
 
           <div className="border-t border-neutral-800 pt-8">
             <p className="text-center text-neutral-400 text-sm">
-              © 2024 ERP Scolaire CI. Tous droits réservés. Développé avec ❤️ pour l'éducation
+              © 2024 GS Arhogninci CI. Tous droits réservés. Développé par Djamx pour l'éducation
             </p>
           </div>
         </div>
